@@ -9,6 +9,10 @@ terraform {
       source  = "hashicorp/helm"
       version = "~> 3.1"
     }
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
   }
 }
 
@@ -16,6 +20,10 @@ provider "google" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
+}
+
+provider "github" {
+  owner = "sergiiglad"
 }
 
 data "google_client_config" "default" {}
