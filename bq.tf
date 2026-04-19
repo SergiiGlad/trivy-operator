@@ -13,16 +13,16 @@ resource "google_bigquery_table" "trivy_vulnerabilities_clean" {
 
   description = "Table for storing decompressed and processed Trivy vulnerability reports"
 
-  # Партиціонування за часом — стандарт для логів, економить гроші на запитах
+  # Time partitioning — standard for logs, saves money on queries
   time_partitioning {
     type  = "DAY"
     field = "created_at"
   }
 
-  # Кластеризація за ім'ям пода дозволить миттєво знаходити логи конкретної джоби
+  # Clustering by pod name allows for instant lookup of specific job logs
   clustering = ["pod_name", "report_type"]
 
-  # Схема таблиці
+  # Table schema
   schema = <<EOF
 [
   {

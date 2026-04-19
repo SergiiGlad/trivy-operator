@@ -1,10 +1,10 @@
 import base64
 import bz2
 import json
+import argparse
 from google.cloud import bigquery
 
 # --- CONFIGURATION ---
-SOURCE_TABLE = "dynamic-link-1ca0e.bq_trivy_logs_flows.stdout_20260418"
 TARGET_TABLE = "dynamic-link-1ca0e.bq_trivy_logs_flows.trivy_vulnerabilities_clean"
 
 def is_report_useful(data):
@@ -23,21 +23,21 @@ def get_processed_pods(client):
     query_job = client.query(query)
     return {row.pod_name for row in query_job}
 
-def get_all_source_pods(client):
+def get_all_source_pods(client, source_table):
     """Retrieves the set of all unique pod_names from source."""
     query = f"""
         SELECT DISTINCT resource.labels.pod_name as pod_name 
-        FROM `{SOURCE_TABLE}` 
+        FROM `{source_table}` 
         WHERE resource.labels.pod_name LIKE 'scan-vulnerabilityreport-%'
     """
     query_job = client.query(query)
     return {row.pod_name for row in query_job}
 
-def process_pod(client, pod_name):
+def process_pod(client, pod_name, source_table):
     """Extracts, validates, and uploads data for a single pod."""
     query = f"""
     SELECT STRING_AGG(textPayload, '' ORDER BY timestamp) as full_payload
-    FROM `{SOURCE_TABLE}`
+    FROM `{source_table}`
     WHERE resource.labels.pod_name = '{pod_name}'
     """
     try:
@@ -76,11 +76,15 @@ def process_pod(client, pod_name):
         return False
 
 def main():
+    parser = argparse.ArgumentParser(description="Sync Trivy reports from log table to clean table.")
+    parser.add_argument("--source", required=True, help="Full BQ source table path (project.dataset.table)")
+    args = parser.parse_args()
+
     client = bigquery.Client()
     
-    print("[*] Analyzing state of scan jobs...")
+    print(f"[*] Analyzing state of scan jobs using source: {args.source}...")
     processed = get_processed_pods(client)
-    all_pods = get_all_source_pods(client)
+    all_pods = get_all_source_pods(client, args.source)
     
     # Identify pods that exist in source but not in destination
     to_process = all_pods - processed
@@ -93,7 +97,7 @@ def main():
     
     for pod in to_process:
         print(f"[*] Processing: {pod}")
-        if process_pod(client, pod):
+        if process_pod(client, pod, args.source):
             print(f"[+] Successfully handled: {pod}")
         else:
             print(f"[!] Failed to process: {pod}")

@@ -33,3 +33,5 @@ override.tf.json
 __pycache__/
 .DS_Store
 
+scripts/test/
+
