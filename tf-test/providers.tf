@@ -24,6 +24,7 @@ provider "google" {
 
 provider "github" {
   owner = "SergiiGlad"
+  token = var.github_pat
 }
 
 data "google_client_config" "default" {}
