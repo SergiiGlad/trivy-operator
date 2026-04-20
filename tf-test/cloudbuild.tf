@@ -88,3 +88,26 @@ resource "google_cloudbuild_trigger" "trivy_operator_push_main_trigger" {
     }
   }
 }
+
+# Trigger that runs on every Push to the develop branch
+resource "google_cloudbuild_trigger" "trivy_operator_push_develop_trigger" {
+  location        = var.region
+  name            = "trivy-operator-push-develop"
+  project         = var.project_id
+  service_account = "projects/${var.project_id}/serviceAccounts/${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  filename        = "cloudbuild.yaml"
+
+  substitutions = {
+    _PROJECT_ID                 = var.project_id
+    _REGION                     = var.region
+    _GITHUB_APP_INSTALLATION_ID = tostring(var.github_app_installation_id)
+  }
+
+  repository_event_config {
+    repository = google_cloudbuildv2_repository.trivy_repo.id
+    push {
+      branch = "^develop$"
+    }
+  }
+}
+
