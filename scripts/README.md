@@ -4,6 +4,21 @@ This folder contains scripts to process and decompress Trivy vulnerability repor
 
 ## Getting Started
 
+### Setup
+
+To set up your local environment and install the necessary dependencies, execute the following commands from the project root:
+
+```bash
+# Create a Python virtual environment
+python3 -m venv .venv
+
+# Activate the virtual environment
+source .venv/bin/activate
+
+# Install required libraries
+pip3 install -r requirements.txt
+```
+
 Once the Terraform infrastructure is successfully deployed and the BigQuery dataset and `trivy_vulnerabilities_clean` table have been created, you can run the synchronization script.
 
 ### Usage
