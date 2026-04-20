@@ -24,8 +24,8 @@ steps:
   - '-c'
   - |
       export TF_VAR_github_pat=$$GITHUB_PAT
-      if [ -d "tf-test" ]; then
-        cd tf-test
+      if [ -d "terraform" ]; then
+        cd terraform
         terraform init
       else
           echo "*************** TERRAFORM INIT ******************"
@@ -43,8 +43,8 @@ steps:
   - '-c'
   - | 
       export TF_VAR_github_pat=$$GITHUB_PAT
-      if [ -d "tf-test" ]; then
-        cd tf-test
+      if [ -d "terraform" ]; then
+        cd terraform
         terraform plan
       else
           echo "*************** TERRAFORM INIT ******************"
@@ -63,11 +63,11 @@ steps:
   - | 
       export TF_VAR_github_pat=$$GITHUB_PAT
       if [ "$BRANCH_NAME" == "main" ]; then
-        if [ -d "tf-test" ]; then
-          cd tf-test
+        if [ -d "terraform" ]; then
+          cd terraform
           terraform apply -auto-approve
         else
-          echo "******* tf-test folder not found ********"
+          echo "******* terraform folder not found ********"
           exit 1
         fi
       else
