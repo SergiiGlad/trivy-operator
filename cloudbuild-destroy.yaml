@@ -1,0 +1,16 @@
+steps:
+  # Initialize Terraform
+  - name: 'hashicorp/terraform:1.5.7'
+    args: ['init']
+    dir: 'terraform'
+
+  # Destroy the infrastructure
+  - name: 'hashicorp/terraform:1.5.7'
+    args: 
+      - 'destroy'
+      - '-auto-approve'
+      - '-var=project_id=$PROJECT_ID'
+    dir: 'terraform'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

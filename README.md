@@ -18,6 +18,18 @@ There are three primary automation triggers configured in Terraform:
 *   **Pull Request to `main`**: Validates changes before they are merged into the production branch.
 *   **Push to `main`**: Triggers the final production deployment workflow.
 
+### Teardown (Manual)
+
+For security and to prevent accidental data loss, **Terraform Destroy** is not automated on branch pushes. 
+*   A separate **Manual Trigger** should be created in Google Cloud Build pointing to `cloudbuild-destroy.yaml`.
+*   This allows administrators to tear down environments (like `develop`) specifically when they are no longer needed.
+
+Alternatively, you can trigger the destroy process manually from your local terminal:
+
+```bash
+gcloud builds submit --config cloudbuild-destroy.yaml .
+```
+
 ## Repository Structure
 
 *   [`terraform/`](./terraform/): Infrastructure as Code to set up GKE, BigQuery, and the Log Sink.
