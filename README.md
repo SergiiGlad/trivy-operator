@@ -27,7 +27,7 @@ For security and to prevent accidental data loss, **Terraform Destroy** is not a
 Alternatively, you can trigger the destroy process manually from your local terminal:
 
 ```bash
-gcloud builds submit --config cloudbuild-destroy.yaml .
+gcloud builds submit --config cloudbuild-destroy.yaml --substitutions=_PROJECT_ID=YOUR_PROJECT_ID .
 ```
 
 ## Repository Structure

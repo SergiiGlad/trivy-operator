@@ -1,3 +1,8 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+  env:
+    - 'TF_VAR_project_id=${_PROJECT_ID}'
+
 steps:
   # Initialize Terraform
   - name: 'hashicorp/terraform:1.5.7'
