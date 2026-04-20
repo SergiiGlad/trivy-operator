@@ -9,6 +9,27 @@ This project implements an automated security pipeline that scans Kubernetes wor
 3.  **Ingestion (Log Sink)**: A GCP Log Sink captures these specific logs and streams them into a raw BigQuery table.
 4.  **Processing (Python)**: A synchronization script processes the raw logs, handles decompression/parsing, and populates a clean, partitioned table optimized for SQL analysis.
 
+## CI/CD Pipeline
+
+The project uses **Google Cloud Build** for automated deployments and infrastructure management, following a standard Git Flow model with `main` and `develop` branches.
+
+There are three primary automation triggers configured in Terraform:
+*   **Push to `develop`**: Automatically triggers builds and tests for the development environment.
+*   **Pull Request to `main`**: Validates changes before they are merged into the production branch.
+*   **Push to `main`**: Triggers the final production deployment workflow.
+
+### Teardown (Manual)
+
+For security and to prevent accidental data loss, **Terraform Destroy** is not automated on branch pushes. 
+*   A separate **Manual Trigger** should be created in Google Cloud Build pointing to `cloudbuild-destroy.yaml`.
+*   This allows administrators to tear down environments (like `develop`) specifically when they are no longer needed.
+
+Alternatively, you can trigger the destroy process manually from your local terminal:
+
+```bash
+gcloud builds submit --config cloudbuild-destroy.yaml --substitutions=_PROJECT_ID=YOUR_PROJECT_ID .
+```
+
 ## Repository Structure
 
 *   [`terraform/`](./terraform/): Infrastructure as Code to set up GKE, BigQuery, and the Log Sink.
@@ -32,9 +53,18 @@ python scripts/sync_trivy_reports.py --source YOUR_PROJECT.bq_trivy_logs_flows.s
 ### 3. Analyze Data
 You can then run SQL queries in BigQuery to find critical issues:
 ```sql
-SELECT pod_name, report_data 
-FROM `bq_trivy_logs_flows.trivy_vulnerabilities_clean`
-WHERE JSON_VALUE(report_data, '$.summary.criticalCount') != '0';
+SELECT 
+  pod_name,
+  -- Access the specific fields inside the vulnerability object
+  JSON_VALUE(vuln, '$.VulnerabilityID') as cve_id,
+  JSON_VALUE(vuln, '$.Severity') as severity,
+  JSON_VALUE(vuln, '$.PkgName') as package_name
+FROM `dynamic-link-1ca0e.bq_trivy_logs_flows.trivy_vulnerabilities_clean`,
+-- First, unnest the Results array
+UNNEST(JSON_QUERY_ARRAY(report_data, '$.Results')) as result,
+-- Second, unnest the Vulnerabilities array inside each Result
+UNNEST(JSON_QUERY_ARRAY(result, '$.Vulnerabilities')) as vuln
+WHERE JSON_VALUE(vuln, '$.Severity') = 'CRITICAL';
 ```
 
 ## Prerequisites
