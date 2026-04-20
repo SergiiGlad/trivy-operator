@@ -65,7 +65,7 @@ steps:
       if [ "$BRANCH_NAME" == "main" ]; then
         if [ -d "tf-test" ]; then
           cd tf-test
-          terraform plan #apply -auto-approve
+          terraform apply -auto-approve
         else
           echo "******* tf-test folder not found ********"
           exit 1
