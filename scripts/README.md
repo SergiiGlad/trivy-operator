@@ -11,12 +11,12 @@ Once the Terraform infrastructure is successfully deployed and the BigQuery data
 Run the following command to process reports from a specific source log table (e.g., a table created by the log sink for a specific date):
 
 ```bash
-python scripts/sync_trivy_reports.py --source <PROJECT_ID>.<DATASET_ID>.<TABLE_NAME>
+python3 scripts/sync_trivy_reports.py --source <PROJECT_ID>.<DATASET_ID>.<TABLE_NAME>
 ```
 
 **Example:**
 ```bash
-python scripts/sync_trivy_reports.py --source dynamic-link-1ca0e.bq_trivy_logs_flows.stdout_20260419
+python3 scripts/sync_trivy_reports.py --source dynamic-link-1ca0e.bq_trivy_logs_flows.stdout_20260420
 ```
 
 Run SQL query to see CRITICAL vulnarabilities

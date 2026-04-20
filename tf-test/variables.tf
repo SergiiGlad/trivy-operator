@@ -10,7 +10,7 @@ variable "region" {
 
 variable "zone" {
   type    = string
-  default = "us-central1-a"
+  default = "us-central1-c"
 }
 
 variable "create_github_repo" {
